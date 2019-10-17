@@ -4,113 +4,58 @@
 <head>
   <title>It Literally Plays All the Ongaku Shōjo Music</title>
   <meta charset='utf-8'/>
-
+  <script src="data.js"></script>
     <script>
-data = [
-  {
-    "desc": "Shining Peace (Opening 1) by Ongaku Shōjo",
-    "mp4": "https://files.catbox.moe/wtnu8c.webm",
-    "mp3": "https://files.catbox.moe/bufquc.mp3",
-  },
-  {
-    "desc": "Eien Shōnen (Opening 2) by Yui Ogura",
-    "mp4": "https://track9.mixtape.moe/cloyxq.webm",
-    "mp3": "https://files.catbox.moe/7pce7j.mp3",
-  },
+// this dumb bit of "encryption" is not meant to keep a determined individual
+// from getting the links stored here, since it is fairly simple to crack
+// however, it is enough to keep any basic web crawler from picking them up
+const amq_scramble = {};
 
-  {
-    "desc": "Shining Peace (Ending 2) by Ongaku Shōjo",
-    "mp4": "https://files.catbox.moe/rvfs0d.webm",
-    "mp3": "https://files.catbox.moe/wab62e.mp3",
-  },
-  {
-    "desc": "Onegai Marguerite (Ending 3) by Ongaku Shōjo",
-    "mp4": "https://files.catbox.moe/o0p8a6.webm",
-    "mp3": "https://files.catbox.moe/yb1x23.mp3",
-  },
-
-  {
-    "desc": "ON STAGE LIFE (EP 1 Insert) by Ongaku Shōjo",
-    "mp4": "https://files.catbox.moe/tji64p.webm",
-    "mp3": "https://files.catbox.moe/1rhbrj.mp3",
-  },
-  {
-    "desc": "terzetto rhapsody (EP 3 Insert) by Asami Seto",
-    "mp4": "https://files.catbox.moe/7ydepu.webm",
-    "mp3": "https://files.catbox.moe/yrqz1z.mp3",
-  },
-  {
-    "desc": "terzetto rhapsody (EP ? Insert) by H☆E☆S",
-    "mp4": "https://files.catbox.moe/6119gm.webm",
-    "mp3": "https://files.catbox.moe/d5l9hu.mp3",
-  },
-  {
-    "desc": "Kagayake Make up! Shine☆ (EP 4 Insert) by Miyuri Shimabukuro",
-    "mp4": "https://files.catbox.moe/g7j002.webm",
-    "mp3": "https://files.catbox.moe/hsqdw2.mp3",
-  },
-  {
-    "desc": "poppin’rain (EP 5 Insert) by Yui Ogura",
-    "mp4": "https://files.catbox.moe/9v3raw.webm",
-    "mp3": "https://files.catbox.moe/vh649v.mp3",
-  },
-  {
-    "desc": "Fly Girl (EP6 Insert) by Miho Okasaki",
-    "mp4": "https://files.catbox.moe/6pt6s3.webm",
-    "mp3": "https://files.catbox.moe/mglbdh.mp3",
-  },
-  {
-    "desc": "Lovely trouble (EP 7 Insert) by Karin Takahashi",
-    "mp4": "https://files.catbox.moe/uhxj54.webm",
-    "mp3": "https://files.catbox.moe/yg980p.mp3",
-  },
-  {
-    "desc": "You are my only one (EP 7 Insert) by Lynn",
-    "mp4": "https://files.catbox.moe/6n9cev.webm",
-    "mp3": "https://files.catbox.moe/owntc0.mp3",
-  },
-  {
-    "desc": "Let's sing!! (EP 8 Insert) by H☆E☆S",
-    "mp4": "https://files.catbox.moe/q2aqmd.webm",
-    "mp3": "https://files.catbox.moe/iwudwz.mp3",
-  },
-  {
-    "desc": "Oasis (EP 9 Insert) by Nako Eguchi",
-    "mp4": "https://files.catbox.moe/7kx1hs.webm",
-    "mp3": "https://files.catbox.moe/fh8oq7.mp3",
-  },
-  {
-    "desc": "poppin'rain (EP 11 Insert Song) by Seria Fukagawa & Yui Ogura",
-    "mp4": "https://files.catbox.moe/d7w2uo.webm",
-    "mp3": "https://files.catbox.moe/400x4l.mp3",
-  },
-  {
-    "desc": "Jiyuu no Sora e (EP 11 Insert) by Sumire Uesaka",
-    "mp4": "https://files.catbox.moe/m5f4dc.webm",
-    "mp3": "https://files.catbox.moe/3h4yh4.mp3",
-  },
-  {
-    "desc": "Shining Peace (EP 12 Insert) by Ongaku Shōjo (w/ Hanako)",
-    "mp4": "https://files.catbox.moe/9u5amu.webm",
-    "mp3": "https://files.catbox.moe/dd8mpp.mp3",
-  },
-]
-
-let cur_song = 0;
-let player = undefined;
-let desc = undefined;
-
-const play_song = function(index) {
-  player.src = data[cur_song].mp3;
-  desc.innerHTML = data[cur_song].desc;
+amq_scramble.hosts = {
+  "catbox": "https://files.catbox.moe",
+  "track9": "https://track9.mixtape.moe",
+};
+amq_scramble.decode_link_obj = function(link_obj, password) {
+  let link = amq_scramble.hosts[link_obj.host] + '/';
+  for(let i = 0; i < link_obj.code.length; i++) {
+    link += String.fromCharCode(link_obj.code[i] ^ password.charCodeAt(i % password.length)); //fun
+  };
+  return link + '.' + link_obj.ext;
+};
+amq_scramble.parse_link_string = function(link_string) {
+  let semi_split = link_string.split(';');
+  return {
+    host: semi_split[0],
+    code: semi_split[1].split(',').map(x => parseInt(x)),
+    ext:  semi_split[2],
+  };
+};
+amq_scramble.decode = function(link_string, password) {
+  return amq_scramble.decode_link_obj(amq_scramble.parse_link_string(link_string), password);
 };
 
-window.onload = function() {
+let cur_song = 0;
+let cur_group = 'Ongaku Shoujo';
+let quality = 'mp3';
+let player = undefined;
+let desc = undefined;
+let password = '';
+
+const play_song = function(index) {
+  player.src = amq_scramble.decode(data[cur_group][cur_song][quality], password);
+  desc.innerHTML = data[cur_group][cur_song].desc;
+};
+
+const start = function() {
   player = document.getElementById('player');
   desc = document.getElementById('desc');
+  password = document.getElementById('password_input').value;
+  document.getElementById('password_input').remove();
+  document.getElementById('password_lable').remove();
+  document.getElementById('password_button').remove();
   play_song(cur_song);
   player.addEventListener('ended', function() {
-    cur_song = (cur_song + 1) % data.length;
+    cur_song = (cur_song + 1) % data[cur_group].length;
     play_song(cur_song);
   });
 };
@@ -120,6 +65,8 @@ window.onload = function() {
 <body>
   <video controls id='player' autoplay='true' width='640'></video>
   <p id='desc'></p>
+  <p id='password_lable'>Password:</p><input id='password_input' type="text" name="password_name">
+  <button id='password_button' onclick="start()">Submit</button>
 </body>
 
 </html>
