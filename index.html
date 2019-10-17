@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>It Literally Plays All the Ongaku Shōjo Music</title>
+  <title>AMQ Listening</title>
   <meta charset='utf-8'/>
   <script src="data.js"></script>
     <script>
@@ -39,25 +39,75 @@ let cur_group = 'Ongaku Shoujo';
 let quality = 'mp3';
 let player = undefined;
 let desc = undefined;
+let anime_select = undefined;
+let quality_select = undefined;
+let song_select = undefined;
 let password = '';
 
 const play_song = function(index) {
+  cur_song = index;
   player.src = amq_scramble.decode(data[cur_group][cur_song][quality], password);
   desc.innerHTML = data[cur_group][cur_song].desc;
 };
 
+const play_group = function(group) {
+  cur_group = group;
+  cur_song = 0;
+
+  for (a in song_select.options) { song_select.options.remove(0); }
+
+  data[cur_group].forEach(
+    function (val, idx) {
+      let opt = document.createElement('option');
+      opt.value = idx;
+      opt.innerHTML = val.desc;
+      song_select.appendChild(opt);
+    }
+  );
+
+  play_song(cur_song);
+};
+
+const set_quality = function(q) {
+  quality = q;
+  play_song(cur_song);
+};
+
 const start = function() {
-  player = document.getElementById('player');
   desc = document.getElementById('desc');
   password = document.getElementById('password_input').value;
+  anime_select = document.getElementById('anime_select');
+  song_select = document.getElementById('song_select');
+  quality_select = document.getElementById('quality_select');
+
+  player = document.getElementById('player');
+  player.addEventListener('ended', function() {
+    play_song((cur_song + 1) % data[cur_group].length);
+  });
+
   document.getElementById('password_input').remove();
   document.getElementById('password_lable').remove();
   document.getElementById('password_button').remove();
-  play_song(cur_song);
-  player.addEventListener('ended', function() {
-    cur_song = (cur_song + 1) % data[cur_group].length;
-    play_song(cur_song);
-  });
+
+  let first = true;
+  Object.getOwnPropertyNames(data).forEach(
+    function (val) {
+      let opt = document.createElement('option');
+      opt.value = val;
+      opt.innerHTML = val;
+      anime_select.appendChild(opt);
+      if(first) {
+        cur_group = val;
+        first = false;
+      }
+    }
+  );
+
+  anime_select.style = '';
+  song_select.style = '';
+  quality_select.style = '';
+
+  play_group(cur_group);
 };
     </script>
 </head>
@@ -67,6 +117,12 @@ const start = function() {
   <p id='desc'></p>
   <p id='password_lable'>Password:</p><input id='password_input' type="text" name="password_name">
   <button id='password_button' onclick="start()">Submit</button>
+  <select id="anime_select" onchange="play_group(this.value)" autocomplete="off" style="display:none"></select>
+  <select id="song_select" onchange="play_song(parseInt(this.value))" autocomplete="off" style="display:none"></select>
+  <select id="quality_select" onchange="set_quality(this.value)" autocomplete="off" style="display:none">
+    <option value="mp3" selected>mp3</option>
+    <option value="webm">webm</option>
+  </select>
 </body>
 
 </html>
