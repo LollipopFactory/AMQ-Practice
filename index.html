@@ -55,7 +55,7 @@ const play_group = function(group) {
   cur_group = group;
   cur_song = 0;
 
-  for (a in song_select.options) { song_select.options.remove(0); }
+  song_select.options.length = 0;
 
   data[cur_group].forEach(
     function (val, idx) {
