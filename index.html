@@ -47,8 +47,13 @@ let password = '';
 
 const play_song = function(index) {
   cur_song = index;
+  song_select.selectedIndex = index;
   player.src = amq_scramble.decode(data[cur_group][cur_song][quality], password);
   desc.innerHTML = data[cur_group][cur_song].desc;
+};
+
+const play_next = function() {
+  play_song((cur_song + 1) % data[cur_group].length);
 };
 
 const play_group = function(group) {
@@ -65,6 +70,7 @@ const play_group = function(group) {
       song_select.appendChild(opt);
     }
   );
+  song_select.size = Math.min(10, song_select.options.length);
 
   play_song(cur_song);
 };
@@ -77,21 +83,22 @@ const set_quality = function(q) {
 const start = function() {
   desc = document.getElementById('desc');
   password = document.getElementById('password_input').value;
+  next_button = document.getElementById('next_button');
   anime_select = document.getElementById('anime_select');
   song_select = document.getElementById('song_select');
   quality_select = document.getElementById('quality_select');
 
   player = document.getElementById('player');
   player.addEventListener('ended', function() {
-    play_song((cur_song + 1) % data[cur_group].length);
+    play_next();
   });
 
   document.getElementById('password_input').remove();
-  document.getElementById('password_lable').remove();
+  document.getElementById('password_label').remove();
   document.getElementById('password_button').remove();
 
   let first = true;
-  Object.getOwnPropertyNames(data).forEach(
+  Object.getOwnPropertyNames(data).sort().forEach(
     function (val) {
       let opt = document.createElement('option');
       opt.value = val;
@@ -104,6 +111,7 @@ const start = function() {
     }
   );
 
+  next_button.style.display = '';
   anime_select.style.display = '';
   song_select.style.display = '';
   quality_select.style.display = '';
@@ -116,14 +124,21 @@ const start = function() {
 <body>
   <video controls id='player' autoplay='true' width='640'></video>
   <p id='desc'></p>
-  <p id='password_lable'>Password:</p><input id='password_input' type="text" name="password_name">
+  <p id='password_label'>Password:</p><input id='password_input' type="text" name="password_name">
   <button id='password_button' onclick="start()">Submit</button>
-  <select id="anime_select" onchange="play_group(this.value)" autocomplete="off" style="display:none"></select>
-  <select id="song_select" onchange="play_song(parseInt(this.value))" autocomplete="off" style="display:none"></select>
-  <select id="quality_select" onchange="set_quality(this.value)" autocomplete="off" style="display:none">
-    <option value="mp3" selected>mp3</option>
-    <option value="webm">webm</option>
-  </select>
+  <div style='padding-bottom: 10px'>
+    <select id="anime_select" onchange="play_group(this.value)" autocomplete="off" style="display:none"></select>
+    <select id="quality_select" onchange="set_quality(this.value)" autocomplete="off" style="display:none">
+      <option value="mp3" selected>mp3</option>
+      <option value="webm">webm</option>
+    </select>
+  </div>
+  <div style='padding-bottom: 10px'>
+    <select id="song_select" onchange="play_song(parseInt(this.value))" size="10" autocomplete="off" style="display:none; font-size:1em"></select>
+  </div>
+  <div>
+    <button id='next_button' onclick="play_next()" style="display:none; font-size:1.5em">Next</button>
+  </div>
 </body>
 
 </html>
