@@ -125,11 +125,11 @@ const start = function() {
     iso_prevent_sleep = setInterval(function () {
       if(!document.hidden) {
         window.location.href = "prevent_sleep";
-        // window.setTimeout(function () {
-        //     window.stop();
-        // }, 0);
+        window.setTimeout(function () {
+            window.stop();
+        }, 0);
       }
-    }, 10000);
+    }, 30000);
   }
 
   play_group(cur_group);
