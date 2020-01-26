@@ -99,6 +99,10 @@ const start = function() {
   document.getElementById('password_label').remove();
   document.getElementById('password_button').remove();
 
+  mobile_checkbox = document.getElementById('mobile_checkbox');
+  mobile = mobile_checkbox.checked;
+  mobile_checkbox.remove();
+
   let first = true;
   Object.getOwnPropertyNames(data).sort().forEach(
     function (val) {
@@ -118,6 +122,15 @@ const start = function() {
   song_select.style.display = '';
   quality_select.style.display = '';
 
+  if(mobile) {
+    iso_prevent_sleep = setInterval(function () {
+      window.location.href = "prevent_sleep";
+      window.setTimeout(function () {
+          window.stop();
+      }, 0);
+    }, 30000);
+  }
+
   play_group(cur_group);
 };
     </script>
@@ -128,6 +141,7 @@ const start = function() {
   <p id='desc'></p>
   <p id='password_label'>Password:</p><input id='password_input' type="text" name="password_name">
   <button id='password_button' onclick="start()">Submit</button>
+  <input type='checkbox' id="mobile_checkbox">Mobile</input>
   <div style='padding-bottom: 10px'>
     <select id="anime_select" onchange="play_group(this.value)" autocomplete="off" style="display:none"></select>
     <select id="quality_select" onchange="set_quality(this.value)" autocomplete="off" style="display:none">
