@@ -89,6 +89,8 @@ const start = function() {
   anime_select = document.getElementById('anime_select');
   song_select = document.getElementById('song_select');
   quality_select = document.getElementById('quality_select');
+  mobile_checkbox = document.getElementById('mobile_checkbox');
+  mobile = mobile_checkbox.checked;
 
   player = document.getElementById('player');
   player.addEventListener('ended', function() {
@@ -98,10 +100,7 @@ const start = function() {
   document.getElementById('password_input').remove();
   document.getElementById('password_label').remove();
   document.getElementById('password_button').remove();
-
-  mobile_checkbox = document.getElementById('mobile_checkbox');
-  mobile = mobile_checkbox.checked;
-  mobile_checkbox.remove();
+  document.getElementById('mobile_container').remove();
 
   let first = true;
   Object.getOwnPropertyNames(data).sort().forEach(
@@ -124,10 +123,12 @@ const start = function() {
 
   if(mobile) {
     iso_prevent_sleep = setInterval(function () {
-      window.location.href = "prevent_sleep";
-      window.setTimeout(function () {
-          window.stop();
-      }, 0);
+      if(!document.hidden) {
+        window.location.href = "prevent_sleep";
+        window.setTimeout(function () {
+            window.stop();
+        }, 0);
+      }
     }, 30000);
   }
 
@@ -141,7 +142,9 @@ const start = function() {
   <p id='desc'></p>
   <p id='password_label'>Password:</p><input id='password_input' type="text" name="password_name">
   <button id='password_button' onclick="start()">Submit</button>
-  <input type='checkbox' id="mobile_checkbox">Mobile</input>
+  <span id='mobile_container'>
+    <input type='checkbox' id="mobile_checkbox">Mobile
+  </span>
   <div style='padding-bottom: 10px'>
     <select id="anime_select" onchange="play_group(this.value)" autocomplete="off" style="display:none"></select>
     <select id="quality_select" onchange="set_quality(this.value)" autocomplete="off" style="display:none">
