@@ -52,6 +52,7 @@ const play_song = function(index) {
   song_select.selectedIndex = index;
   player.src = amq_scramble.decode(data[cur_group][cur_song][quality], password);
   player.innerHTML = data[cur_group][cur_song].desc;
+  player.title = data[cur_group][cur_song].desc;
   desc.innerHTML = data[cur_group][cur_song].desc;
 };
 
