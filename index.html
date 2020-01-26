@@ -124,12 +124,18 @@ const start = function() {
   quality_select.style.display = '';
 
   if(mobile) {
+
+    iframe = document.createElement('IFRAME');
+    document.body.appendChild(iframe);
+    iframe.src = 'think.png';
+    src_index = 1;
+    iframe_srcs = ['think.png', 'think2.png'];
+
     iso_prevent_sleep = setInterval(function () {
       if(!document.hidden) {
-        window.location.href = "think.png";
-        window.setTimeout(function () {
-            window.stop();
-        }, 0);
+        iframe.src = iframe_srcs[src_index];
+        src_index = (src_index + 1) % 2;
+        // window.setTimeout(window.stop, 0);
       }
     }, 30000);
   }
