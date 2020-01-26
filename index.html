@@ -50,6 +50,7 @@ const play_song = function(index) {
   cur_song = index;
   song_select.selectedIndex = index;
   player.src = amq_scramble.decode(data[cur_group][cur_song][quality], password);
+  player.innerHTML = data[cur_group][cur_song].desc;
   desc.innerHTML = data[cur_group][cur_song].desc;
 };
 
@@ -123,7 +124,7 @@ const start = function() {
 </head>
 
 <body>
-  <video controls id='player' autoplay='true' width='640'></video>
+  <video controls id='player' autoplay='true' width='640' webkit-playsinline='true' playsinline='true'></video>
   <p id='desc'></p>
   <p id='password_label'>Password:</p><input id='password_input' type="text" name="password_name">
   <button id='password_button' onclick="start()">Submit</button>
