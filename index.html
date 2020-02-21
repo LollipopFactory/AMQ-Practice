@@ -128,7 +128,7 @@ const start = function() {
 <body>
   <video controls id='player' autoplay='true' width='640' webkit-playsinline='true' playsinline='true'></video>
   <p id='desc'></p>
-  <p id='password_label'>Password:</p><input id='password_input' type="text" name="password_name">
+  <p id='password_label'>Password:</p><input type="password" id='password_input' type="text" name="password_name">
   <button id='password_button' onclick="start()">Submit</button>
   <div style='padding-bottom: 10px'>
     <select id="anime_select" onchange="play_group(this.value)" autocomplete="off" style="display:none"></select>
