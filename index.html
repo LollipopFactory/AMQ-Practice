@@ -97,9 +97,7 @@ const start = function() {
     play_next();
   });
 
-  document.getElementById('password_input').remove();
-  document.getElementById('password_label').remove();
-  document.getElementById('password_button').remove();
+  document.getElementById('password_form').remove();
 
   let first = true;
   Object.getOwnPropertyNames(data).sort().forEach(
@@ -128,8 +126,10 @@ const start = function() {
 <body>
   <video controls id='player' autoplay='true' width='640' webkit-playsinline='true' playsinline='true'></video>
   <p id='desc'></p>
-  <p id='password_label'>Password:</p><input type="password" id='password_input' type="text" name="password_name">
-  <button id='password_button' onclick="start()">Submit</button>
+  <form id='password_form'>
+    <p>Password:</p><input type="password" id='password_input' type="text" name="password_name">
+    <button onclick="start()">Submit</button>
+  </form>
   <div style='padding-bottom: 10px'>
     <select id="anime_select" onchange="play_group(this.value)" autocomplete="off" style="display:none"></select>
     <select id="quality_select" onchange="set_quality(this.value)" autocomplete="off" style="display:none">
