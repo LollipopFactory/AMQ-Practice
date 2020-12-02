@@ -43,8 +43,9 @@ let quality = 'mp3';
 let player = undefined;
 let desc = undefined;
 let anime_select = undefined;
-let quality_select = undefined;
 let song_select = undefined;
+let random_order = undefined;
+let random_sample = undefined;
 let password = '';
 
 const play_song = function(index) {
@@ -56,13 +57,28 @@ const play_song = function(index) {
   desc.innerHTML = data[cur_group][cur_song].desc;
 };
 
+const random_song_index = function() {
+  return Math.floor(Math.random() * data[cur_group].length);
+}
+
 const play_next = function() {
-  play_song((cur_song + 1) % data[cur_group].length);
+  if(random_order.checked) {
+    play_song(random_song_index());
+  }
+  else {
+    play_song((cur_song + 1) % data[cur_group].length);
+  }
 };
 
 const play_group = function(group) {
   cur_group = group;
-  cur_song = 0;
+
+  if(random_order.checked) {
+    cur_song = random_song_index();
+  }
+  else {
+    cur_song = 0;
+  }
 
   song_select.options.length = 0;
 
@@ -76,6 +92,9 @@ const play_group = function(group) {
   );
   song_select.size = Math.min(10, song_select.options.length);
 
+  if(random_order.checked) {
+    cur_song = random_song_index();
+  }
   play_song(cur_song);
 };
 
@@ -87,14 +106,21 @@ const set_quality = function(q) {
 const start = function() {
   desc = document.getElementById('desc');
   password = document.getElementById('password_input').value;
-  next_button = document.getElementById('next_button');
   anime_select = document.getElementById('anime_select');
   song_select = document.getElementById('song_select');
-  quality_select = document.getElementById('quality_select');
+  random_order = document.getElementById('random_order');
+  random_sample = document.getElementById('random_sample');
 
   player = document.getElementById('player');
   player.addEventListener('ended', function() {
     play_next();
+  });
+  player.addEventListener('loadedmetadata', function() {
+    let desired_duration = 10;
+    if(random_sample.checked) {
+      const max_start = Math.max(player.duration - desired_duration, 0);
+      player.currentTime = Math.random() * max_start;
+    }
   });
 
   document.getElementById('password_form').remove();
@@ -113,10 +139,7 @@ const start = function() {
     }
   );
 
-  next_button.style.display = '';
-  anime_select.style.display = '';
-  song_select.style.display = '';
-  quality_select.style.display = '';
+  document.getElementById('after-password').style.display = '';
 
   play_group(cur_group);
 };
@@ -130,18 +153,22 @@ const start = function() {
     <p>Password:</p><input type="password" id='password_input' type="text" name="password_name">
     <button onclick="start()">Submit</button>
   </form>
-  <div style='padding-bottom: 10px'>
-    <select id="anime_select" onchange="play_group(this.value)" autocomplete="off" style="display:none"></select>
-    <select id="quality_select" onchange="set_quality(this.value)" autocomplete="off" style="display:none">
-      <option value="mp3" selected>mp3</option>
-      <option value="webm">webm</option>
-    </select>
-  </div>
-  <div style='padding-bottom: 10px'>
-    <select id="song_select" onchange="play_song(parseInt(this.value))" size="10" autocomplete="off" style="display:none; font-size:1em"></select>
-  </div>
-  <div>
-    <button id='next_button' onclick="play_next()" style="display:none; font-size:1.5em">Next</button>
+  <div id='after-password' style="display:none">
+    <div style='padding-bottom: 10px'>
+      <select id="anime_select" onchange="play_group(this.value)" autocomplete="off"></select>
+      <select id="quality_select" onchange="set_quality(this.value)" autocomplete="off">
+        <option value="mp3" selected>mp3</option>
+        <option value="webm">webm</option>
+      </select>
+      <input id="random_order" type="checkbox">Random Order</input>
+      <input id="random_sample" type="checkbox">Random Sample</input>
+    </div>
+    <div style='padding-bottom: 10px'>
+      <select id="song_select" onchange="play_song(parseInt(this.value))" size="10" autocomplete="off" style="font-size:1em"></select>
+    </div>
+    <div>
+      <button id='next_button' onclick="play_next()" style="font-size:1.5em">Next</button>
+    </div>
   </div>
 </body>
 
