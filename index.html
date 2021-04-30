@@ -5,6 +5,11 @@
   <title>AMQ Listening</title>
   <meta charset='utf-8'/>
   <link rel="icon" href="think.png">
+  <style>
+    .covered {background: black;}
+    .covered:hover {background: white;}
+    .fullHidden {display: none;}
+  </style>
   <script src="data.js"></script>
     <script>
 // this dumb bit of "encryption" is not meant to keep a determined individual
@@ -42,10 +47,12 @@ let cur_group = 'Ongaku Shoujo';
 let quality = 'mp3';
 let player = undefined;
 let desc = undefined;
-let anime_select = undefined;
+let type_select = undefined;
+let group_select = undefined;
 let song_select = undefined;
 let random_order = undefined;
 let random_sample = undefined;
+let hide_titles = undefined;
 let password = '';
 
 const play_song = function(index) {
@@ -98,18 +105,59 @@ const play_group = function(group) {
   play_song(cur_song);
 };
 
+const set_type = function(type) {
+
+  group_select.options.length = 0;
+  let first = true;
+  Object.getOwnPropertyNames(data).sort().forEach(
+    function (val) {
+      if (types[val] === undefined) {
+        types[val] = 'series';
+      }
+      if (types[val] !== type) {
+        return;
+      }
+      let opt = document.createElement('option');
+      opt.value = val;
+      opt.innerHTML = val;
+      group_select.appendChild(opt);
+      if(first) {
+        cur_group = val;
+        first = false;
+      }
+    }
+  );
+
+  play_group(cur_group);
+}
+
 const set_quality = function(q) {
   quality = q;
   play_song(cur_song);
 };
 
+const hide_title_click = function() {
+  if(hide_titles.checked) {
+    desc.className = 'covered';
+    song_select.className = 'fullHidden';
+    player.className = 'fullHidden';
+  }
+  else {
+    desc.className = '';
+    song_select.className = '';
+    player.className = '';
+  }
+};
+
 const start = function() {
   desc = document.getElementById('desc');
   password = document.getElementById('password_input').value;
-  anime_select = document.getElementById('anime_select');
+  type_select = document.getElementById('type_select');
+  group_select = document.getElementById('group_select');
   song_select = document.getElementById('song_select');
   random_order = document.getElementById('random_order');
   random_sample = document.getElementById('random_sample');
+  hide_titles = document.getElementById('hide_titles');
 
   player = document.getElementById('player');
   player.addEventListener('ended', function() {
@@ -125,29 +173,16 @@ const start = function() {
 
   document.getElementById('password_form').remove();
 
-  let first = true;
-  Object.getOwnPropertyNames(data).sort().forEach(
-    function (val) {
-      let opt = document.createElement('option');
-      opt.value = val;
-      opt.innerHTML = val;
-      anime_select.appendChild(opt);
-      if(first) {
-        cur_group = val;
-        first = false;
-      }
-    }
-  );
-
   document.getElementById('after-password').style.display = '';
+  hide_title_click();
 
-  play_group(cur_group);
+  set_type(type_select.value);
 };
     </script>
 </head>
 
 <body>
-  <video controls id='player' autoplay='true' width='640' webkit-playsinline='true' playsinline='true'></video>
+  <video controls id='player' autoplay='true' width='640' webkit-playsinline='true' playsinline='true' style='border: 1px solid;'></video>
   <p id='desc'></p>
   <form id='password_form'>
     <p>Password:</p><input type="password" id='password_input' type="text" name="password_name">
@@ -155,13 +190,18 @@ const start = function() {
   </form>
   <div id='after-password' style="display:none">
     <div style='padding-bottom: 10px'>
-      <select id="anime_select" onchange="play_group(this.value)" autocomplete="off"></select>
+      <select id="type_select" onchange="set_type(this.value)" autocomplete="off">
+        <option value="series" selected>Series</option>
+        <option value="song">Songs</option>
+      </select>
+      <select id="group_select" onchange="play_group(this.value)" autocomplete="off"></select>
       <select id="quality_select" onchange="set_quality(this.value)" autocomplete="off">
         <option value="mp3" selected>mp3</option>
         <option value="webm">webm</option>
       </select>
       <input id="random_order" type="checkbox">Random Order</input>
       <input id="random_sample" type="checkbox">Random Sample</input>
+      <input id="hide_titles" type="checkbox" onclick="hide_title_click();">Hide Titles</input>
     </div>
     <div style='padding-bottom: 10px'>
       <select id="song_select" onchange="play_song(parseInt(this.value))" size="10" autocomplete="off" style="font-size:1em"></select>
