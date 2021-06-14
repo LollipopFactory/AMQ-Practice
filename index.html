@@ -184,9 +184,9 @@ const start = function() {
 <body>
   <video controls id='player' autoplay='true' width='640' webkit-playsinline='true' playsinline='true' style='border: 1px solid;'></video>
   <p id='desc'></p>
-  <form id='password_form'>
+  <form id='password_form' action="#" onsubmit="start();return false;">
     <p>Password:</p><input type="password" id='password_input' type="text" name="password_name">
-    <button onclick="start()">Submit</button>
+    <button>Submit</button>
   </form>
   <div id='after-password' style="display:none">
     <div style='padding-bottom: 10px'>
